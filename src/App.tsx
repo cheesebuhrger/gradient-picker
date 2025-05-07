@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import Gradient from "./gradient.js";
 import "./grained.js";
@@ -16,6 +16,9 @@ var grainOptions = {
 
 function App() {
   const gradientRef = useRef<Gradient | null>(null);
+  const [selectedGradientId, setSelectedGradientId] = useState<number | null>(
+    null
+  );
 
   useEffect(() => {
     const gradient = new Gradient();
@@ -29,6 +32,7 @@ function App() {
     if (canvas) {
       const randomIndex = Math.floor(Math.random() * gradientColors.length);
       const initialGradient = gradientColors[randomIndex].gradient;
+      setSelectedGradientId(gradientColors[randomIndex].id);
       canvas.style.setProperty("--gradient-color-1", initialGradient[0]);
       canvas.style.setProperty("--gradient-color-2", initialGradient[1]);
       canvas.style.setProperty("--gradient-color-3", initialGradient[2]);
@@ -41,6 +45,7 @@ function App() {
   }, []);
 
   const updateGradient = (id: number) => {
+    setSelectedGradientId(id);
     const canvas = document.getElementById("gradient-canvas");
     if (canvas) {
       // Get the gradient set by ID
@@ -69,25 +74,23 @@ function App() {
     <>
       <div id="main-container">
         <canvas id="gradient-canvas" data-transition-in />
-        <div
-          id="grained-texture"
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-          }}
-        />
+        <div id="grained-texture" />
 
-        <h1>Gradient Controls</h1>
+        <h1>Gradient Picker</h1>
         <div id="button-container">
           {gradientColors.map((gradient) => (
             <button
               key={gradient.id}
               onClick={() => updateGradient(gradient.id)}
+              className={selectedGradientId === gradient.id ? "active" : ""}
+              style={{
+                background:
+                  selectedGradientId === gradient.id
+                    ? gradient.gradient[0]
+                    : "transparent",
+              }}
             >
-              <span>{gradient.name}</span>
+              <span className="gradient-label">{gradient.name}</span>
             </button>
           ))}
         </div>
